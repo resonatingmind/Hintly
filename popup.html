@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Hintly - Welcome</title>
+    <meta name="viewport" content="width=320, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Inter:400,600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <div class="popup-card initial-card">
+        <div class="logo-container">
+            <div class="logo">
+                <img class="logo-img" src="Hintly.png" alt="Hintly Logo" />
+            </div>
+            <div class="app-name">Hintly</div>
+        </div>
+        <div class="tagline">Your competitive coding AI assistant.</div>
+        <div class="explanation">
+            Hintly helps you learn problem-solving on Codeforces with context-aware hints without spoiling
+            your learning journey.
+        </div>
+        <form class="input-group" autocomplete="off">
+            <input class="api-input" placeholder="Enter your OpenAI API Key" spellcheck="false"
+                autocomplete="new-password" required />
+            <a class="api-link" href="https://platform.openai.com/account/api-keys" target="_blank"
+                rel="noopener noreferrer">
+                How do I get my API key?
+            </a>
+        </form>
+        <div class="privacy">
+            <svg viewBox="0 0 20 20">
+                <path
+                    d="M10 2a4 4 0 0 0-4 4v3H5a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2h-1V6a4 4 0 0 0-4-4zm-2 4a2 2 0 1 1 4 0v3H8V6zm-3 5a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-5z" />
+            </svg>
+            <span>Your API key is stored only in your browser.</span>
+        </div>
+        <button class="start-btn" type="submit" form="form">
+            <div id="btn-txt" class="btn-txt" style="display: block;">
+                Save and Start Hintly
+            </div>
+            <!-- Loader (hidden initially) -->
+            <div id="loader" class="loader" style="display: none;">
+                Validating...
+            </div>
+        </button>
+    </div>
+
+    <div class="popup-card show-card">
+        <div class="logo-container">
+            <div class="logo">
+                <img class="logo-img" src="Hintly.png" alt="Hintly Logo" />
+            </div>
+            <div class="app-name">Hintly</div>
+        </div>
+        <div class="tagline">Your competitive coding AI assistant.</div>
+        <div class="explanation">
+            Hintly is ready! You can now use the extension on Codeforces while solving problems by clicking the Ask AI
+            button at the bottom.
+        </div>
+        <label for="language-select">Update your key:</label>
+        <form class="input-group" autocomplete="off">
+            <input id="update-api-input" class="api-input" placeholder="Change your OpenAI API Key" spellcheck="false"
+                autocomplete="new-password" required />
+        </form>
+        <button class=" btn update-btn" type="submit" form="form">
+            <div id="btn-txt" class="btn-txt" style="display: block;">
+                Update API Key
+            </div>
+            <!-- Loader (hidden initially) -->
+            <div id="loader" class="loader" style="display: none;">
+                Validating...
+            </div>
+        </button>
+        <label for="language-select">Preferred Coding Language:</label>
+        <select id="language-select" class="glass-select">
+            <option value="C++">C++ (default)</option>
+            <option value="Python">Python</option>
+            <option value="Java">Java</option>
+            <option value="JavaScript">JavaScript</option>
+            <option value="C#">C#</option>
+            <option value="Ruby">Ruby</option>
+            <option value="Kotlin">Kotlin</option>
+            <option value="Go">Go</option>
+            <option value="Rust">Rust</option>
+            <option value="PHP">PHP</option>
+        </select>
+        <button id="save-lang-btn">Save Language</button>
+        <div class="dialog"></div>
+    </div>
+    <script src="popup.js"></script>
+</body>
+
+</html>

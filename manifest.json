@@ -1,0 +1,48 @@
+{
+    "manifest_version": 3,
+    "name": "Hintly",
+    "version": "1.0.0",
+    "description": "Get context-aware hints on Codeforces without spoiling your learning.",
+    "permissions": [
+        "storage",
+        "activeTab",
+        "scripting"
+    ],
+    "host_permissions": [
+        "https://codeforces.com/*",
+        "https://api.openai.com/*"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "Hintly.png",
+            "48": "Hintly.png",
+            "128": "Hintly.png"
+        }
+    },
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "sidebar.css"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
+        }
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "https://codeforces.com/contest/*/problem/*",
+                "https://codeforces.com/problemset/problem/*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "run_at": "document_idle"
+        }
+    ]
+}
