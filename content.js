@@ -1,6 +1,61 @@
 // Create "Ask AI" floating button
 const aiButton = document.createElement("button");
 aiButton.innerText = "Ask AI";
+const style = document.createElement("style");
+style.innerText = `body { font-family: 'Inter', sans-serif !important; }`;
+document.head.appendChild(style);
+// Style the "Ask AI" button
+Object.assign(aiButton.style, {
+    position: "fixed",
+    bottom: "20px",
+    right: "20px",
+    zIndex: "9999",
+    padding: "10px 16px",
+    background: "linear-gradient(45deg, #667eea 0%, #764ba2 100%)",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontSize: "14px",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+});
+
+// Hover effect
+aiButton.style.transition = "background 0.3s, box-shadow 0.3s, transform 0.2s";
+
+aiButton.addEventListener("mouseenter", () => {
+    aiButton.style.background = "linear-gradient(45deg, #764ba2 0%, #667eea 100%)";
+    aiButton.style.boxShadow = "0 4px 12px rgba(76, 81, 255, 0.25)";
+    aiButton.style.transform = "translateY(-2px) scale(1.04)";
+});
+
+aiButton.addEventListener("mouseleave", () => {
+    aiButton.style.background = "linear-gradient(45deg, #667eea 0%, #764ba2 100%)";
+    aiButton.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
+    aiButton.style.transform = "none";
+});
+
+aiButton.addEventListener("mouseleave", () => {
+    aiButton.style.backgroundColor = "linear-gradient(45deg, #667eea 0%, #764ba2 100%)";
+});
+
+// On click, show chatbot and hide button
+aiButton.addEventListener("click", () => {
+    const apiKey = chrome.storage.local.get("openai_api_key", (data) => {
+        if (!data.openai_api_key) {
+            alert("Please set your OpenAI API key by clicking on the extension icon.");
+            return;
+        }
+        else {
+            chatBot.style.display = "flex";
+            aiButton.style.display = "none";
+            if (messages.length === 0) {
+                addMessage("How can I help with your problem?", "bot");
+            }
+            return data.openai_api_key;
+        }
+    });
+});
 
 // Create chatbot container
 const chatBot = document.createElement("div");
@@ -21,14 +76,16 @@ Object.assign(chatBot.style, {
     flexDirection: "column",
     overflow: "hidden",
     fontFamily: "Segoe UI, Arial, sans-serif",
+    whiteSpace: "pre-wrap",
 });
 
 // Clear previous content
 chatBot.innerHTML = "";
+
 // Header
 const header = document.createElement("div");
 Object.assign(header.style, {
-    background: "#3b82f6",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
     color: "#fff",
     padding: "14px 18px",
     fontWeight: "bold",
@@ -39,7 +96,8 @@ Object.assign(header.style, {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    position: "relative"
+    position: "relative",
+    fontFamily: "'Inter', sans-serif"
 });
 
 // Header icon and title
@@ -48,12 +106,19 @@ headerLeft.style.display = "flex";
 headerLeft.style.alignItems = "center";
 
 const logo = document.createElement("div");
-logo.innerText = "💡";
-logo.style.fontSize = "20px";
-logo.style.marginRight = "8px";
+const img = document.createElement("img");
+img.src = chrome.runtime.getURL("Hintly.png");
+img.alt = "Hintly Logo";
+img.style.width = "24px";
+img.style.height = "24px";
+img.style.marginRight = "8px";
+logo.appendChild(img);
 
 const title = document.createElement("div");
 title.innerText = "Hintly";
+Object.assign(title.style, {
+    marginBottom: "4px"
+});
 
 headerLeft.appendChild(logo);
 headerLeft.appendChild(title);
@@ -68,6 +133,7 @@ Object.assign(closeBtn.style, {
     fontSize: "20px",
     cursor: "pointer"
 });
+
 closeBtn.addEventListener("click", () => {
     chatBot.style.display = "none";
     aiButton.style.display = "block";
@@ -86,29 +152,48 @@ Object.assign(chatArea.style, {
     fontSize: "14px",
     display: "flex",
     flexDirection: "column",
-    gap: "8px"
+    gap: "8px",
+    fontFamily: "'Inter', sans-serif"
 });
 chatArea.id = "hintly-chat-area";
 
+// Store messages in an array
+const messages = [];
+
+function renderMessages() {
+    chatArea.innerHTML = "";
+    messages.forEach(({ content, sender }) => {
+        const message = document.createElement("div");
+        message.innerText = content;
+        message.style.padding = "8px 12px";
+        message.style.borderRadius = "12px";
+        message.style.maxWidth = "80%";
+        message.style.wordWrap = "break-word";
+        if (sender === "user") {
+            message.style.alignSelf = "flex-end";
+            message.style.backgroundColor = "#764ba2";
+            message.style.color = "#fff";
+        } else {
+            message.style.alignSelf = "flex-start";
+            message.style.backgroundColor = "#e5e7eb";
+            message.style.color = "#111";
+        }
+        chatArea.appendChild(message);
+    });
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
+
 // Helper to add messages
 function addMessage(content, sender) {
-    const message = document.createElement("div");
-    message.innerText = content;
-    message.style.padding = "8px 12px";
-    message.style.borderRadius = "12px";
-    message.style.maxWidth = "80%";
-    message.style.wordWrap = "break-word";
-    if (sender === "user") {
-        message.style.alignSelf = "flex-end";
-        message.style.backgroundColor = "#3b82f6";
-        message.style.color = "#fff";
-    } else {
-        message.style.alignSelf = "flex-start";
-        message.style.backgroundColor = "#e5e7eb";
-        message.style.color = "#111";
+    messages.push({ content, sender });
+    renderMessages();
+}
+
+function removeMessage(index) {
+    if (index >= 0 && index < messages.length) {
+        messages.splice(index, 1);
+        renderMessages();
     }
-    chatArea.appendChild(message);
-    chatArea.scrollTop = chatArea.scrollHeight;
 }
 
 // Bottom container
@@ -132,28 +217,30 @@ const getHintBtn = document.createElement("button");
 getHintBtn.innerText = "Get Hint";
 Object.assign(getHintBtn.style, {
     flex: "1",
-    background: "#f59e0b",
+    background: "linear-gradient(45deg, #764ba2, #667eea)",
     color: "#fff",
     border: "none",
     borderRadius: "6px",
     padding: "8px",
     fontWeight: "bold",
     cursor: "pointer",
-    fontSize: "14px"
+    fontSize: "14px",
+    fontFamily: "'Inter', sans-serif"
 });
 
 const getSolutionBtn = document.createElement("button");
 getSolutionBtn.innerText = "Get Solution";
 Object.assign(getSolutionBtn.style, {
     flex: "1",
-    background: "#10b981",
+    background: "linear-gradient(45deg, #764ba2, #667eea)",
     color: "#fff",
     border: "none",
     borderRadius: "6px",
     padding: "8px",
     fontWeight: "bold",
     cursor: "pointer",
-    fontSize: "14px"
+    fontSize: "14px",
+    fontFamily: "'Inter', sans-serif"
 });
 
 // Custom message input + send
@@ -173,22 +260,22 @@ Object.assign(textArea.style, {
     padding: "8px",
     fontSize: "14px",
     outline: "none",
-    minHeight: "36px",
-    maxHeight: "80px"
+    fontFamily: "'Inter', sans-serif"
 });
 textArea.placeholder = "Type your question...";
 
 const sendBtn = document.createElement("button");
 sendBtn.innerText = "Send";
 Object.assign(sendBtn.style, {
-    background: "#3b82f6",
+    background: "linear-gradient(45deg, #667eea 0%, #764ba2 100%)",
     color: "#fff",
     border: "none",
     borderRadius: "6px",
     padding: "8px 12px",
     fontWeight: "bold",
     cursor: "pointer",
-    fontSize: "14px"
+    fontSize: "14px",
+    fontFamily: "'Inter', sans-serif"
 });
 
 const rawTitle = getInnerText('.problem-statement .header .title');
@@ -209,13 +296,17 @@ const inputSpec = getInnerText('.problem-statement .input-specification');
 const outputSpec = getInnerText('.problem-statement .output-specification');
 const examples = getInnerText('.problem-statement .sample-test');
 const note = getInnerText('.problem-statement .note');
+const preferredLanguage = chrome.storage.local.get("preferredLanguage").then(data => data.preferredLanguage || "C++");
 
 // Prompts for OpenAI API
-const prompts = [`You are Hintly. Provide a single actionable hint for the following competitive programming problem to help the user move forward without revealing the complete solution. Be concise, clear, and avoid giving away full logic.
+const prompts = [`You are Hintly, an AI assistant for competitive programming. 
+
+Provide a single, clear, actionable hint to help the user move forward with the problem without revealing the complete solution. Be concise, focused, and avoid giving away full logic.
+
+**Important:** Do not use markdown, bullet points, or headings. Return plain text only.
 
 Problem Title: ${probTitle}
-
-Time Limit: {timeLimit}
+Time Limit: ${timeLimit}
 Memory Limit: ${memoryLimit}
 
 Description:
@@ -232,12 +323,17 @@ ${examples}
 
 Note:
 ${note}
+
+Preferred Language: ${preferredLanguage}
 `,
-`You are Hintly. Provide a clear, step-by-step solution with a clean implementation in C++ for the following competitive programming problem.
+`You are Hintly, an AI assistant for competitive programming.
+
+Provide a clear, step-by-step solution for the following competitive programming problem, followed by a clean, readable implementation in ${preferredLanguage}. Be concise and focus only on necessary steps.
+
+**Important:** Do not use markdown, bullet points, or headings. Return plain text only.
 
 Problem Title: ${probTitle}
-
-Time Limit: {timeLimit}
+Time Limit: ${timeLimit}
 Memory Limit: ${memoryLimit}
 
 Description:
@@ -254,14 +350,20 @@ ${examples}
 
 Note:
 ${note}
+
+Preferred Language: ${preferredLanguage}
 `,
-`You are Hintly. The user has asked the following question regarding the given competitive programming problem:
+`You are Hintly, an AI assistant for competitive programming.
 
-Here are the problem details to assist you:
+The user has the following question regarding the problem. Provide a clear, concise, actionable answer to help the user understand and move forward.
+
+**Important:** Do not use markdown, bullet points, or headings. Return plain text only.
+
+User Question:
+[User's actual query will be inserted here]
 
 Problem Title: ${probTitle}
-
-Time Limit: {timeLimit}
+Time Limit: ${timeLimit}
 Memory Limit: ${memoryLimit}
 
 Description:
@@ -279,33 +381,55 @@ ${examples}
 Note:
 ${note}
 
-Please answer the user's query clearly and concisely.
+Preferred Language: ${preferredLanguage}
 `]
 
 // Event listeners
 getHintBtn.addEventListener("click", async () => {
     const apiKey = await chrome.storage.local.get("openai_api_key").then(data => data.openai_api_key);
+    addMessage("Fetching Hint...", "bot");
     const responseText = await callOpenAI(prompts[0], apiKey, "hint");
+    if (responseText.includes("Error fetching hint:")) {
+        alert("Failed to fetch hint");
+        console.error(responseText);
+        return;
+    }
+    removeMessage(messages.length - 1);
     addMessage(responseText, "bot");
 });
+
 getSolutionBtn.addEventListener("click", async () => {
     const apiKey = await chrome.storage.local.get("openai_api_key").then(data => data.openai_api_key);
+    addMessage("Solving...", "bot");
     const responseText = await callOpenAI(prompts[1], apiKey, "solution");
+    if (responseText.includes("Error fetching solution:")) {
+        alert("Failed to fetch solution");
+        console.error(responseText);
+        return;
+    }
+    removeMessage(messages.length - 1);
     addMessage(responseText, "bot");
 });
+
 sendBtn.addEventListener("click", async () => {
     const apiKey = await chrome.storage.local.get("openai_api_key").then(data => data.openai_api_key);
     const message = textArea.value.trim();
+    if (!message) {
+        alert("Please enter a message before sending.");
+        return;
+    }
     const userQuery = message;
-    userQuery ? prompts[2] = `You are Hintly. The user has asked the following question regarding the given competitive programming problem:
+    const preferredLanguage = await chrome.storage.local.get("preferredLanguage").then(data => data.preferredLanguage || "C++");
+    prompts[2] = `You are Hintly, an AI assistant for competitive programming.
 
-User Query: ${userQuery}
+The user has the following question regarding the problem. Provide a clear, concise, actionable answer to help the user understand and move forward.
 
-Here are the problem details to assist you:
+**Important:** Do not use markdown, bullet points, or headings. Return plain text only.
+
+User Question: ${userQuery}
 
 Problem Title: ${probTitle}
-
-Time Limit: {timeLimit}
+Time Limit: ${timeLimit}
 Memory Limit: ${memoryLimit}
 
 Description:
@@ -323,38 +447,19 @@ ${examples}
 Note:
 ${note}
 
-Please answer the user's query clearly and concisely.
-`: `
-You are Hintly. The user has asked the following question regarding the given competitive programming problem:
-
-Here are the problem details to assist you:
-
-Problem Title: ${probTitle}
-
-Time Limit: {timeLimit}
-Memory Limit: ${memoryLimit}
-
-Description:
-${description}
-
-Input Specification:
-${inputSpec}
-
-Output Specification:
-${outputSpec}
-
-Examples:
-${examples}
-
-Note:
-${note}
-
-Please answer the user's query clearly and concisely.
+Preferred Language: ${preferredLanguage}
 `;
     if (message) {
         addMessage(message, "user");
         textArea.value = "";
+        addMessage("Loading...", "bot");
         const responseText = await callOpenAI(prompts[2], apiKey, "query");
+        if (responseText.includes("Error fetching query:")) {
+            alert("Failed to fetch response for your query");
+            console.error(responseText);
+            return;
+        }
+        removeMessage(messages.length - 1);
         addMessage(responseText, "bot");
     }
 });
@@ -371,7 +476,7 @@ const callOpenAI = async (prompt, apiKey, type) => {
             },
             body: JSON.stringify({
                 model: "gpt-4o-mini", // or "gpt-4o-mini", fallback to "gpt-3.5-turbo" if needed
-                store:true,
+                store: true,
                 max_tokens: 1500,
                 messages: [
                     {
@@ -415,52 +520,11 @@ chatBot.appendChild(header);
 chatBot.appendChild(chatArea);
 chatBot.appendChild(bottomContainer);
 
-// Style the "Ask AI" button
-Object.assign(aiButton.style, {
-    position: "fixed",
-    bottom: "20px",
-    right: "20px",
-    zIndex: "9999",
-    padding: "10px 16px",
-    backgroundColor: "#3b82f6",
-    color: "white",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "14px",
-    boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
-});
-
-// Hover effect
-aiButton.addEventListener("mouseenter", () => {
-    aiButton.style.backgroundColor = "#2563eb";
-});
-aiButton.addEventListener("mouseleave", () => {
-    aiButton.style.backgroundColor = "#3b82f6";
-});
-
-// On click, show chatbot and hide button
-aiButton.addEventListener("click", () => {
-    const apiKey = chrome.storage.local.get("openai_api_key", (data) => {
-        if (!data.openai_api_key) {
-            alert("Please set your OpenAI API key by clicking on the extension icon.");
-            return;
-        }
-        else {
-            chatBot.style.display = "flex";
-            aiButton.style.display = "none";
-            addMessage("Hello! How can I assist you today?", "bot");
-            return data.openai_api_key;
-        }
-    });
-});
-
 // Append to DOM
 document.body.appendChild(aiButton);
 document.body.appendChild(chatBot);
 
 //Fetching problem statement from the page
-
 function getInnerText(selector) {
     const el = document.querySelector(selector);
     return el ? el.innerText.trim() : "";

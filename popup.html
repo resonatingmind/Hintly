@@ -14,17 +14,40 @@
 
 <body>
     <div class="popup-card initial-card">
+
+        <div class="close-btn" id="close-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path
+                    d="M18.3 5.7a1 1 0 0 0-1.4 0L12 10.6 7.1 5.7A1 1 0 0 0 5.7 7.1L10.6 12l-4.9 4.9a1 1 0 1 0 1.4 1.4L12 13.4l4.9 4.9a1 1 0 0 0 1.4-1.4L13.4 12l4.9-4.9a1 1 0 0 0 0-1.4z" />
+            </svg>
+        </div>
+
         <div class="logo-container">
             <div class="logo">
                 <img class="logo-img" src="Hintly.png" alt="Hintly Logo" />
             </div>
             <div class="app-name">Hintly</div>
         </div>
+
         <div class="tagline">Your competitive coding AI assistant.</div>
+
         <div class="explanation">
             Hintly helps you learn problem-solving on Codeforces with context-aware hints without spoiling
             your learning journey.
         </div>
+        <label for="language-select">Select your preferred coding language:</label>
+        <select id="language-select-start" class="glass-select">
+            <option value="C++">C++ (default)</option>
+            <option value="Python">Python</option>
+            <option value="Java">Java</option>
+            <option value="JavaScript">JavaScript</option>
+            <option value="C#">C#</option>
+            <option value="Ruby">Ruby</option>
+            <option value="Kotlin">Kotlin</option>
+            <option value="Go">Go</option>
+            <option value="Rust">Rust</option>
+            <option value="PHP">PHP</option>
+        </select>
         <form class="input-group" autocomplete="off">
             <input class="api-input" placeholder="Enter your OpenAI API Key" spellcheck="false"
                 autocomplete="new-password" required />
@@ -42,16 +65,23 @@
         </div>
         <button class="start-btn" type="submit" form="form">
             <div id="btn-txt" class="btn-txt" style="display: block;">
-                Save and Start Hintly
+                Save
             </div>
             <!-- Loader (hidden initially) -->
             <div id="loader" class="loader" style="display: none;">
                 Validating...
             </div>
         </button>
+        <div class="dialog"></div>
     </div>
 
     <div class="popup-card show-card">
+        <div class="close-btn" id="close-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path
+                    d="M18.3 5.7a1 1 0 0 0-1.4 0L12 10.6 7.1 5.7A1 1 0 0 0 5.7 7.1L10.6 12l-4.9 4.9a1 1 0 1 0 1.4 1.4L12 13.4l4.9 4.9a1 1 0 0 0 1.4-1.4L13.4 12l4.9-4.9a1 1 0 0 0 0-1.4z" />
+            </svg>
+        </div>
         <div class="logo-container">
             <div class="logo">
                 <img class="logo-img" src="Hintly.png" alt="Hintly Logo" />
@@ -63,7 +93,10 @@
             Hintly is ready! You can now use the extension on Codeforces while solving problems by clicking the Ask AI
             button at the bottom.
         </div>
-        <label for="language-select">Update your key:</label>
+        <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center;">
+            <label for="language-select">Update your key:</label>
+            <div class="reset-key">Reset Key</div>
+        </div>
         <form class="input-group" autocomplete="off">
             <input id="update-api-input" class="api-input" placeholder="Change your OpenAI API Key" spellcheck="false"
                 autocomplete="new-password" required />
@@ -91,7 +124,7 @@
             <option value="PHP">PHP</option>
         </select>
         <button id="save-lang-btn">Save Language</button>
-        <div class="dialog"></div>
+        <div class="dialogTwo"></div>
     </div>
     <script src="popup.js"></script>
 </body>
