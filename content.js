@@ -296,10 +296,13 @@ const inputSpec = getInnerText('.problem-statement .input-specification');
 const outputSpec = getInnerText('.problem-statement .output-specification');
 const examples = getInnerText('.problem-statement .sample-test');
 const note = getInnerText('.problem-statement .note');
-const preferredLanguage = chrome.storage.local.get("preferredLanguage").then(data => data.preferredLanguage || "C++");
 
-// Prompts for OpenAI API
-const prompts = [`You are Hintly, an AI assistant for competitive programming. 
+// Event listeners
+getHintBtn.addEventListener("click", async () => {
+    const apiKey = await chrome.storage.local.get("openai_api_key").then(data => data.openai_api_key);
+    addMessage("Fetching Hint...", "bot");
+    const preferredLanguage = await chrome.storage.local.get("preferredLanguage").then(data => data.preferredLanguage || "C++");
+    const currPrompt = `You are Hintly, an AI assistant for competitive programming. 
 
 Provide a single, clear, actionable hint to help the user move forward with the problem without revealing the complete solution. Be concise, focused, and avoid giving away full logic.
 
@@ -325,8 +328,22 @@ Note:
 ${note}
 
 Preferred Language: ${preferredLanguage}
-`,
-`You are Hintly, an AI assistant for competitive programming.
+`;
+    const responseText = await callOpenAI(currPrompt, apiKey, "hint");
+    if (responseText.includes("Error fetching hint:")) {
+        alert("Failed to fetch hint");
+        console.error(responseText);
+        return;
+    }
+    removeMessage(messages.length - 1);
+    addMessage(responseText, "bot");
+});
+
+getSolutionBtn.addEventListener("click", async () => {
+    const apiKey = await chrome.storage.local.get("openai_api_key").then(data => data.openai_api_key);
+    addMessage("Solving...", "bot");
+    const preferredLanguage = await chrome.storage.local.get("preferredLanguage").then(data => data.preferredLanguage || "C++");
+    const currPrompt = `You are Hintly, an AI assistant for competitive programming.
 
 Provide a clear, step-by-step solution for the following competitive programming problem, followed by a clean, readable implementation in ${preferredLanguage}. Be concise and focus only on necessary steps.
 
@@ -352,56 +369,9 @@ Note:
 ${note}
 
 Preferred Language: ${preferredLanguage}
-`,
-`You are Hintly, an AI assistant for competitive programming.
-
-The user has the following question regarding the problem. Provide a clear, concise, actionable answer to help the user understand and move forward.
-
-**Important:** Do not use markdown, bullet points, or headings. Return plain text only.
-
-User Question:
-[User's actual query will be inserted here]
-
-Problem Title: ${probTitle}
-Time Limit: ${timeLimit}
-Memory Limit: ${memoryLimit}
-
-Description:
-${description}
-
-Input Specification:
-${inputSpec}
-
-Output Specification:
-${outputSpec}
-
-Examples:
-${examples}
-
-Note:
-${note}
-
-Preferred Language: ${preferredLanguage}
-`]
-
-// Event listeners
-getHintBtn.addEventListener("click", async () => {
-    const apiKey = await chrome.storage.local.get("openai_api_key").then(data => data.openai_api_key);
-    addMessage("Fetching Hint...", "bot");
-    const responseText = await callOpenAI(prompts[0], apiKey, "hint");
-    if (responseText.includes("Error fetching hint:")) {
-        alert("Failed to fetch hint");
-        console.error(responseText);
-        return;
-    }
-    removeMessage(messages.length - 1);
-    addMessage(responseText, "bot");
-});
-
-getSolutionBtn.addEventListener("click", async () => {
-    const apiKey = await chrome.storage.local.get("openai_api_key").then(data => data.openai_api_key);
-    addMessage("Solving...", "bot");
-    const responseText = await callOpenAI(prompts[1], apiKey, "solution");
+`;
+console.log("Current Prompt:", currPrompt);
+    const responseText = await callOpenAI(currPrompt, apiKey, "solution");
     if (responseText.includes("Error fetching solution:")) {
         alert("Failed to fetch solution");
         console.error(responseText);
@@ -420,7 +390,7 @@ sendBtn.addEventListener("click", async () => {
     }
     const userQuery = message;
     const preferredLanguage = await chrome.storage.local.get("preferredLanguage").then(data => data.preferredLanguage || "C++");
-    prompts[2] = `You are Hintly, an AI assistant for competitive programming.
+    const currPrompt = `You are Hintly, an AI assistant for competitive programming.
 
 The user has the following question regarding the problem. Provide a clear, concise, actionable answer to help the user understand and move forward.
 
@@ -453,7 +423,7 @@ Preferred Language: ${preferredLanguage}
         addMessage(message, "user");
         textArea.value = "";
         addMessage("Loading...", "bot");
-        const responseText = await callOpenAI(prompts[2], apiKey, "query");
+        const responseText = await callOpenAI(currPrompt, apiKey, "query");
         if (responseText.includes("Error fetching query:")) {
             alert("Failed to fetch response for your query");
             console.error(responseText);
